@@ -32,6 +32,7 @@ $searchAction = site_url($type ?? 'lodgings');
   <title><?= esc($seoTitle) ?></title>
   <meta name="description" content="<?= esc($seoDescription) ?>" />
   <meta name="keywords" content="<?= esc($seoKeywords) ?>" />
+  <meta name="naver-site-verification" content="c7b559257f7b084e11eb67b7056c1f47b89af3b2" />
   <link rel="canonical" href="<?= esc($canonicalUrl) ?>" />
 
   <meta property="og:type" content="website" />
