@@ -64,8 +64,8 @@
                         <?php foreach ($rows as $row): ?>
                         <a href="<?= site_url(str_replace(' ', '_', strtolower($catName)) . '/' . $row['id']) ?>" class="recent-item">
                             <div>
-                                <div class="name"><?= esc($row['사업장명']) ?></div>
-                                <div class="addr"><?= esc($row['지번주소'] ?: $row['도로명주소']) ?></div>
+                                <div class="name"><?= esc($row['business_name']) ?></div>
+                                <div class="addr"><?= esc($row['lot_address'] ?: $row['road_address']) ?></div>
                             </div>
                             <div class="arrow">›</div>
                         </a>

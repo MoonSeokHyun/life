@@ -3,12 +3,12 @@
 <main class="container">
     <div style="margin-bottom: 2rem;">
         <nav style="font-size: 0.875rem; color: var(--muted); margin-bottom: 1rem;">
-            <a href="<?= site_url('/') ?>">홈</a> › <a href="<?= site_url($type) ?>"><?= esc($displayName) ?></a> › <span style="color: var(--text); font-weight: 600;"><?= esc($item['사업장명']) ?></span>
+            <a href="<?= site_url('/') ?>">홈</a> › <a href="<?= site_url($type) ?>"><?= esc($displayName) ?></a> › <span style="color: var(--text); font-weight: 600;"><?= esc($item['business_name']) ?></span>
         </nav>
         <div style="display: flex; align-items: center; gap: 1rem;">
-            <h1 style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.05em;"><?= esc($item['사업장명']) ?></h1>
-            <span class="status-badge <?= $item['영업상태명'] === '영업/정상' ? 'normal' : 'closed' ?>">
-                <?= esc($item['영업상태명']) ?>
+            <h1 style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.05em;"><?= esc($item['business_name']) ?></h1>
+            <span class="status-badge <?= $item['business_status_name'] === '영업/정상' ? 'normal' : 'closed' ?>">
+                <?= esc($item['business_status_name']) ?>
             </span>
         </div>
     </div>
@@ -23,32 +23,32 @@
                 <table class="detail-table">
                     <tr>
                         <th>주소</th>
-                        <td><?= esc($item['도로명주소'] ?: $item['지번주소'] ?: '정보 없음') ?></td>
+                        <td><?= esc($item['road_address'] ?: $item['lot_address'] ?: '정보 없음') ?></td>
                     </tr>
-                    <?php if ($item['소재지전화']): ?>
+                    <?php if (isset($item['phone_number']) && $item['phone_number']): ?>
                     <tr>
                         <th>전화번호</th>
-                        <td><a href="tel:<?= esc($item['소재지전화']) ?>" style="color: var(--primary); font-weight: 700;"><?= esc($item['소재지전화']) ?></a></td>
+                        <td><a href="tel:<?= esc($item['phone_number']) ?>" style="color: var(--primary); font-weight: 700;"><?= esc($item['phone_number']) ?></a></td>
                     </tr>
                     <?php endif; ?>
                     <tr>
                         <th>인허가일자</th>
-                        <td><?= esc($item['인허가일자']) ?></td>
+                        <td><?= esc($item['permit_date'] ?? '정보 없음') ?></td>
                     </tr>
                     <tr>
                         <th>영업상태</th>
-                        <td><?= esc($item['영업상태명']) ?> (<?= esc($item['상세영업상태명']) ?>)</td>
+                        <td><?= esc($item['business_status_name'] ?? '정보 없음') ?> (<?= esc($item['detail_status_name'] ?? '') ?>)</td>
                     </tr>
-                    <?php if ($item['폐업일자']): ?>
+                    <?php if (isset($item['closure_date']) && $item['closure_date']): ?>
                     <tr>
                         <th>폐업일자</th>
-                        <td><?= esc($item['폐업일자']) ?></td>
+                        <td><?= esc($item['closure_date']) ?></td>
                     </tr>
                     <?php endif; ?>
-                    <?php if ($item['업태구분명']): ?>
+                    <?php if (isset($item['business_category']) && $item['business_category']): ?>
                     <tr>
                         <th>업태</th>
-                        <td><?= esc($item['업태구분명']) ?></td>
+                        <td><?= esc($item['business_category']) ?></td>
                     </tr>
                     <?php endif; ?>
                 </table>
@@ -72,9 +72,9 @@
                 <div id="map" style="width:100%; height:350px; border-radius: 1rem;"></div>
                 <div style="margin-top: 1rem; padding: 0.5rem;">
                     <p style="font-size: 0.875rem; color: var(--muted); word-break: keep-all;">
-                        <?= esc($item['도로명주소'] ?: $item['지번주소']) ?>
+                        <?= esc($item['road_address'] ?: $item['lot_address']) ?>
                     </p>
-                    <a href="https://map.naver.com/v5/search/<?= urlencode($item['사업장명'] . ' ' . ($item['도로명주소'] ?: $item['지번주소'])) ?>" target="_blank" style="display: block; margin-top: 1rem; background: #03c75a; color: #fff; text-align: center; padding: 0.75rem; border-radius: 0.75rem; font-weight: 800; font-size: 0.875rem;">네이버 지도에서 보기</a>
+                    <a href="https://map.naver.com/v5/search/<?= urlencode($item['business_name'] . ' ' . ($item['road_address'] ?: $item['lot_address'])) ?>" target="_blank" style="display: block; margin-top: 1rem; background: #03c75a; color: #fff; text-align: center; padding: 0.75rem; border-radius: 0.75rem; font-weight: 800; font-size: 0.875rem;">네이버 지도에서 보기</a>
                 </div>
             </section>
         </div>
@@ -88,7 +88,7 @@
     };
 
     var map = new naver.maps.Map('map', mapOptions);
-    var address = "<?= esc($item['도로명주소'] ?: $item['지번주소']) ?>";
+    var address = "<?= esc($item['road_address'] ?: $item['lot_address']) ?>";
 
     naver.maps.Service.geocode({
         query: address
@@ -104,7 +104,7 @@
         new naver.maps.Marker({
             position: point,
             map: map,
-            title: "<?= esc($item['사업장명']) ?>"
+            title: "<?= esc($item['business_name']) ?>"
         });
     });
 </script>

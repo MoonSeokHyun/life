@@ -32,13 +32,13 @@
                 <a href="<?= site_url($type . '/' . $row['id']) ?>" class="list-card">
                     <div style="flex: 1;">
                         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-                            <h2 style="font-size: 1.125rem; font-weight: 800;"><?= esc($row['사업장명']) ?></h2>
-                            <span class="status-badge <?= $row['영업상태명'] === '영업/정상' ? 'normal' : 'closed' ?>">
-                                <?= esc($row['영업상태명']) ?>
+                            <h2 style="font-size: 1.125rem; font-weight: 800;"><?= esc($row['business_name']) ?></h2>
+                            <span class="status-badge <?= $row['business_status_name'] === '영업/정상' ? 'normal' : 'closed' ?>">
+                                <?= esc($row['business_status_name']) ?>
                             </span>
                         </div>
                         <div style="font-size: 0.875rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
-                            📍 <?= esc($row['도로명주소'] ?: $row['지번주소'] ?: '주소 정보 없음') ?>
+                            📍 <?= esc($row['road_address'] ?: $row['lot_address'] ?: '주소 정보 없음') ?>
                         </div>
                     </div>
                     <div style="color: var(--primary); font-weight: 700; font-size: 0.875rem;">상세보기 ›</div>

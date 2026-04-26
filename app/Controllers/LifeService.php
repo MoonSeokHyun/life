@@ -43,9 +43,9 @@ class LifeService extends BaseController
 
         if ($search) {
             $builder->groupStart()
-                    ->like('사업장명', $search)
-                    ->orLike('지번주소', $search)
-                    ->orLike('도로명주소', $search)
+                    ->like('business_name', $search)
+                    ->orLike('lot_address', $search)
+                    ->orLike('road_address', $search)
                     ->groupEnd();
         }
 
