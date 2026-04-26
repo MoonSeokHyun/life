@@ -32,6 +32,40 @@ class LifeService extends BaseController
         'comprehensive_travel_agencies' => '종합 여행사',
     ];
 
+    // 컬럼명 한글 매핑 테이블
+    protected $columnLabels = [
+        'business_name' => '사업장명',
+        'road_address' => '도로명 주소',
+        'lot_address' => '지번 주소',
+        'phone_number' => '전화번호',
+        'permit_date' => '인허가 일자',
+        'business_status_name' => '영업 상태',
+        'detail_status_name' => '상세 영업 상태',
+        'closure_date' => '폐업 일자',
+        'business_category' => '업태 구분',
+        'site_area' => '소재지 면적',
+        'zip_code' => '우편번호',
+        'male_employees' => '남성 종사자 수',
+        'female_employees' => '여성 종사자 수',
+        'total_employees' => '총 종사자 수',
+        'coordinate_x' => '좌표(X)',
+        'coordinate_y' => '좌표(Y)',
+        'hygiene_business_type' => '위생업태명',
+        'is_multi_use_facility' => '다중이용업소 여부',
+        'total_facility_scale' => '시설 총 규모',
+        'building_ownership' => '건물 소유 구분',
+        'deposit' => '보증금',
+        'monthly_rent' => '월세',
+        'homepage' => '홈페이지',
+        'last_modified_at' => '최종 수정 시점',
+        'permit_number' => '인허가 번호',
+        'room_count' => '객실 수',
+        'floor_count' => '층수',
+        'water_supply_type' => '급수시설 구분',
+        'surrounding_environment' => '주변 환경',
+        'grade_name' => '등급',
+    ];
+
     public function index($type)
     {
         $db = Config::connect();
@@ -87,6 +121,7 @@ class LifeService extends BaseController
             'type' => $type,
             'displayName' => $displayName,
             'item' => $item,
+            'columnLabels' => $this->columnLabels,
             'seoTitle' => "{$item['business_name']} - {$displayName} 상세 정보 | LifeHub",
             'seoDescription' => "{$item['business_name']}의 주소: " . ($item['road_address'] ?: $item['lot_address']) . ", 영업상태: {$item['business_status_name']}",
         ];

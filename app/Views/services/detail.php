@@ -5,52 +5,68 @@
         <nav style="font-size: 0.875rem; color: var(--muted); margin-bottom: 1rem;">
             <a href="<?= site_url('/') ?>">홈</a> › <a href="<?= site_url($type) ?>"><?= esc($displayName) ?></a> › <span style="color: var(--text); font-weight: 600;"><?= esc($item['business_name']) ?></span>
         </nav>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <h1 style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.05em;"><?= esc($item['business_name']) ?></h1>
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <h1 style="font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 900; letter-spacing: -0.05em;"><?= esc($item['business_name']) ?></h1>
             <span class="status-badge <?= $item['business_status_name'] === '영업/정상' ? 'normal' : 'closed' ?>">
                 <?= esc($item['business_status_name']) ?>
             </span>
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem;">
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2.5rem;">
         <div>
+            <!-- 핵심 요약 정보 -->
+            <section class="section-block" style="margin-bottom: 2rem; border-left: 5px solid var(--primary);">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem;">주소</div>
+                        <div style="font-weight: 700; font-size: 1.0625rem;"><?= esc($item['road_address'] ?: $item['lot_address'] ?: '정보 없음') ?></div>
+                    </div>
+                    <?php if (isset($item['phone_number']) && $item['phone_number']): ?>
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem;">연락처</div>
+                        <div style="font-weight: 700; font-size: 1.25rem;"><a href="tel:<?= esc($item['phone_number']) ?>" style="color: var(--primary);"><?= esc($item['phone_number']) ?></a></div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+
+            <!-- 상세 데이터 표 -->
             <section class="section-block" style="margin-bottom: 2rem;">
                 <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
                     <span style="width: 4px; height: 18px; background: var(--primary); border-radius: 2px;"></span>
-                    상세 정보
+                    시설 및 운영 상세 정보
                 </h2>
                 <table class="detail-table">
+                    <?php 
+                    // 관리용 컬럼 및 이미 보여준 컬럼 제외
+                    $exclude = ['id', 'business_name', 'road_address', 'lot_address', 'phone_number', '_imported_at'];
+                    
+                    foreach ($item as $key => $value): 
+                        if (in_array($key, $exclude) || empty($value) || $value === '0' || $value === '0.0') continue;
+                        
+                        // 한글 라벨이 있으면 사용, 없으면 키값 가공해서 사용
+                        $label = $columnLabels[$key] ?? ucwords(str_replace('_', ' ', $key));
+                    ?>
                     <tr>
-                        <th>주소</th>
-                        <td><?= esc($item['road_address'] ?: $item['lot_address'] ?: '정보 없음') ?></td>
+                        <th><?= esc($label) ?></th>
+                        <td>
+                            <?php 
+                            if (strpos($key, 'date') !== false || strpos($key, 'at') !== false) {
+                                echo esc(substr($value, 0, 10)); // 날짜 형식 간소화
+                            } elseif (is_numeric($value) && strpos($key, 'count') !== false) {
+                                echo number_format($value) . "개";
+                            } elseif (is_numeric($value) && strpos($key, 'employees') !== false) {
+                                echo number_format($value) . "명";
+                            } elseif ($key === 'homepage') {
+                                echo '<a href="' . esc($value) . '" target="_blank" style="color: var(--primary); text-decoration: underline;">홈페이지 방문</a>';
+                            } else {
+                                echo esc($value);
+                            }
+                            ?>
+                        </td>
                     </tr>
-                    <?php if (isset($item['phone_number']) && $item['phone_number']): ?>
-                    <tr>
-                        <th>전화번호</th>
-                        <td><a href="tel:<?= esc($item['phone_number']) ?>" style="color: var(--primary); font-weight: 700;"><?= esc($item['phone_number']) ?></a></td>
-                    </tr>
-                    <?php endif; ?>
-                    <tr>
-                        <th>인허가일자</th>
-                        <td><?= esc($item['permit_date'] ?? '정보 없음') ?></td>
-                    </tr>
-                    <tr>
-                        <th>영업상태</th>
-                        <td><?= esc($item['business_status_name'] ?? '정보 없음') ?> (<?= esc($item['detail_status_name'] ?? '') ?>)</td>
-                    </tr>
-                    <?php if (isset($item['closure_date']) && $item['closure_date']): ?>
-                    <tr>
-                        <th>폐업일자</th>
-                        <td><?= esc($item['closure_date']) ?></td>
-                    </tr>
-                    <?php endif; ?>
-                    <?php if (isset($item['business_category']) && $item['business_category']): ?>
-                    <tr>
-                        <th>업태</th>
-                        <td><?= esc($item['business_category']) ?></td>
-                    </tr>
-                    <?php endif; ?>
+                    <?php endforeach; ?>
                 </table>
             </section>
 
@@ -67,14 +83,24 @@
         </div>
 
         <div>
-            <section class="section-block" style="padding: 1rem; position: sticky; top: 100px;">
-                <h2 style="font-size: 1rem; font-weight: 800; margin-bottom: 1rem; padding-left: 0.5rem;">📍 위치 안내</h2>
-                <div id="map" style="width:100%; height:350px; border-radius: 1rem;"></div>
-                <div style="margin-top: 1rem; padding: 0.5rem;">
-                    <p style="font-size: 0.875rem; color: var(--muted); word-break: keep-all;">
-                        <?= esc($item['road_address'] ?: $item['lot_address']) ?>
-                    </p>
-                    <a href="https://map.naver.com/v5/search/<?= urlencode($item['business_name'] . ' ' . ($item['road_address'] ?: $item['lot_address'])) ?>" target="_blank" style="display: block; margin-top: 1rem; background: #03c75a; color: #fff; text-align: center; padding: 0.75rem; border-radius: 0.75rem; font-weight: 800; font-size: 0.875rem;">네이버 지도에서 보기</a>
+            <!-- 지도 및 길찾기 -->
+            <section class="section-block" style="padding: 1.25rem; position: sticky; top: 100px;">
+                <h2 style="font-size: 1rem; font-weight: 800; margin-bottom: 1.25rem; padding-left: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.25rem;">📍</span> 위치 및 지도
+                </h2>
+                <div id="map" style="width:100%; height:320px; border-radius: 1rem; margin-bottom: 1.25rem;"></div>
+                
+                <div style="display: grid; gap: 0.75rem;">
+                    <a href="https://map.naver.com/v5/search/<?= urlencode($item['business_name'] . ' ' . ($item['road_address'] ?: $item['lot_address'])) ?>" 
+                       target="_blank" 
+                       style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #03c75a; color: #fff; padding: 1rem; border-radius: 0.75rem; font-weight: 800; font-size: 0.9375rem;">
+                       <span>naver</span> 네이버 지도 열기
+                    </a>
+                    <a href="https://map.kakao.com/link/search/<?= urlencode($item['business_name'] . ' ' . ($item['road_address'] ?: $item['lot_address'])) ?>" 
+                       target="_blank" 
+                       style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #fee500; color: #3c1e1e; padding: 1rem; border-radius: 0.75rem; font-weight: 800; font-size: 0.9375rem;">
+                       <span>kakao</span> 카카오 맵 열기
+                    </a>
                 </div>
             </section>
         </div>
@@ -84,7 +110,7 @@
 <script>
     var mapOptions = {
         center: new naver.maps.LatLng(37.3595704, 127.105399),
-        zoom: 15
+        zoom: 16
     };
 
     var map = new naver.maps.Map('map', mapOptions);
@@ -93,18 +119,17 @@
     naver.maps.Service.geocode({
         query: address
     }, function(status, response) {
-        if (status !== naver.maps.Service.Status.OK) {
-            return;
-        }
+        if (status !== naver.maps.Service.Status.OK) return;
         var result = response.v2,
-            item = result.addresses[0];
+            pointData = result.addresses[0];
 
-        var point = new naver.maps.LatLng(item.y, item.x);
+        var point = new naver.maps.LatLng(pointData.y, pointData.x);
         map.setCenter(point);
         new naver.maps.Marker({
             position: point,
             map: map,
-            title: "<?= esc($item['business_name']) ?>"
+            title: "<?= esc($item['business_name']) ?>",
+            animation: naver.maps.Animation.DROP
         });
     });
 </script>
@@ -115,16 +140,18 @@
         border-radius: 999px;
         font-size: 0.875rem;
         font-weight: 800;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    .status-badge.normal { background: #dcfce7; color: #166534; }
-    .status-badge.closed { background: #fee2e2; color: #991b1b; }
+    .status-badge.normal { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .status-badge.closed { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 
-    .detail-table { width: 100%; border-collapse: collapse; }
-    .detail-table th { text-align: left; padding: 1rem; width: 140px; color: var(--muted); font-size: 0.9375rem; border-bottom: 1px solid #f1f5f9; }
-    .detail-table td { padding: 1rem; font-weight: 600; border-bottom: 1px solid #f1f5f9; }
+    .detail-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    .detail-table th { text-align: left; padding: 1.125rem 1rem; width: 160px; color: var(--muted); font-size: 0.875rem; border-bottom: 1px solid #f1f5f9; background: #fafafa; }
+    .detail-table td { padding: 1.125rem 1rem; font-weight: 600; border-bottom: 1px solid #f1f5f9; color: var(--text); }
 
     @media (max-width: 992px) {
         main > div:nth-child(2) { grid-template-columns: 1fr !important; }
+        .detail-table th { width: 120px; }
     }
 </style>
 
