@@ -87,8 +87,8 @@ class LifeService extends BaseController
             'type' => $type,
             'displayName' => $displayName,
             'item' => $item,
-            'seoTitle' => "{$item['사업장명']} - {$displayName} 상세 정보 | LifeHub",
-            'seoDescription' => "{$item['사업장명']}의 주소: " . ($item['도로명주소'] ?: $item['지번주소']) . ", 영업상태: {$item['영업상태명']}",
+            'seoTitle' => "{$item['business_name']} - {$displayName} 상세 정보 | LifeHub",
+            'seoDescription' => "{$item['business_name']}의 주소: " . ($item['road_address'] ?: $item['lot_address']) . ", 영업상태: {$item['business_status_name']}",
         ];
 
         return view('services/detail', $data);
