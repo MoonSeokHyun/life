@@ -35,31 +35,30 @@
             <section class="section-block" style="margin-bottom: 2rem;">
                 <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
                     <span style="width: 4px; height: 18px; background: var(--primary); border-radius: 2px;"></span>
-                    시설 및 운영 상세 정보
+                    상세 정보
                 </h2>
                 <table class="detail-table">
                     <?php 
-                    // 관리용 컬럼 및 이미 보여준 컬럼 제외
-                    $exclude = ['id', 'business_name', 'road_address', 'lot_address', 'phone_number', '_imported_at'];
+                    // 핵심 정보는 이미 상단에 보여줬으므로 제외
+                    $exclude = ['business_name', 'road_address', 'lot_address', 'phone_number'];
                     
-                    foreach ($item as $key => $value): 
-                        if (in_array($key, $exclude) || empty($value) || $value === '0' || $value === '0.0') continue;
-                        
-                        // 한글 라벨이 있으면 사용, 없으면 키값 가공해서 사용
-                        $label = $columnLabels[$key] ?? ucwords(str_replace('_', ' ', $key));
+                    // 정의된 한글 라벨 순서대로 노출 시도
+                    foreach ($columnLabels as $key => $label): 
+                        if (in_array($key, $exclude) || !isset($item[$key]) || empty($item[$key]) || $item[$key] === '0' || $item[$key] === '0.0') continue;
+                        $value = $item[$key];
                     ?>
                     <tr>
                         <th><?= esc($label) ?></th>
                         <td>
                             <?php 
-                            if (strpos($key, 'date') !== false || strpos($key, 'at') !== false) {
-                                echo esc(substr($value, 0, 10)); // 날짜 형식 간소화
-                            } elseif (is_numeric($value) && strpos($key, 'count') !== false) {
+                            if (strpos($key, 'date') !== false) {
+                                echo esc(substr($value, 0, 10));
+                            } elseif (is_numeric($value) && (strpos($key, 'count') !== false || strpos($key, 'floors') !== false)) {
                                 echo number_format($value) . "개";
                             } elseif (is_numeric($value) && strpos($key, 'employees') !== false) {
                                 echo number_format($value) . "명";
                             } elseif ($key === 'homepage') {
-                                echo '<a href="' . esc($value) . '" target="_blank" style="color: var(--primary); text-decoration: underline;">홈페이지 방문</a>';
+                                echo '<a href="' . (strpos($value, 'http') === 0 ? esc($value) : 'http://'.esc($value)) . '" target="_blank" style="color: var(--primary); text-decoration: underline;">홈페이지 방문</a>';
                             } else {
                                 echo esc($value);
                             }
@@ -94,12 +93,12 @@
                     <a href="https://map.naver.com/v5/search/<?= urlencode($item['business_name'] . ' ' . ($item['road_address'] ?: $item['lot_address'])) ?>" 
                        target="_blank" 
                        style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #03c75a; color: #fff; padding: 1rem; border-radius: 0.75rem; font-weight: 800; font-size: 0.9375rem;">
-                       <span>naver</span> 네이버 지도 열기
+                       네이버 지도 열기
                     </a>
                     <a href="https://map.kakao.com/link/search/<?= urlencode($item['business_name'] . ' ' . ($item['road_address'] ?: $item['lot_address'])) ?>" 
                        target="_blank" 
                        style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #fee500; color: #3c1e1e; padding: 1rem; border-radius: 0.75rem; font-weight: 800; font-size: 0.9375rem;">
-                       <span>kakao</span> 카카오 맵 열기
+                       카카오 맵 열기
                     </a>
                 </div>
             </section>
@@ -108,51 +107,26 @@
 </main>
 
 <script>
-    var mapOptions = {
-        center: new naver.maps.LatLng(37.3595704, 127.105399),
-        zoom: 16
-    };
-
+    var mapOptions = { center: new naver.maps.LatLng(37.3595704, 127.105399), zoom: 16 };
     var map = new naver.maps.Map('map', mapOptions);
     var address = "<?= esc($item['road_address'] ?: $item['lot_address']) ?>";
-
-    naver.maps.Service.geocode({
-        query: address
-    }, function(status, response) {
+    naver.maps.Service.geocode({ query: address }, function(status, response) {
         if (status !== naver.maps.Service.Status.OK) return;
-        var result = response.v2,
-            pointData = result.addresses[0];
-
+        var pointData = response.v2.addresses[0];
         var point = new naver.maps.LatLng(pointData.y, pointData.x);
         map.setCenter(point);
-        new naver.maps.Marker({
-            position: point,
-            map: map,
-            title: "<?= esc($item['business_name']) ?>",
-            animation: naver.maps.Animation.DROP
-        });
+        new naver.maps.Marker({ position: point, map: map, title: "<?= esc($item['business_name']) ?>", animation: naver.maps.Animation.DROP });
     });
 </script>
 
 <style>
-    .status-badge {
-        padding: 0.4rem 1rem;
-        border-radius: 999px;
-        font-size: 0.875rem;
-        font-weight: 800;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
+    .status-badge { padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.875rem; font-weight: 800; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .status-badge.normal { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
     .status-badge.closed { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-
     .detail-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
     .detail-table th { text-align: left; padding: 1.125rem 1rem; width: 160px; color: var(--muted); font-size: 0.875rem; border-bottom: 1px solid #f1f5f9; background: #fafafa; }
     .detail-table td { padding: 1.125rem 1rem; font-weight: 600; border-bottom: 1px solid #f1f5f9; color: var(--text); }
-
-    @media (max-width: 992px) {
-        main > div:nth-child(2) { grid-template-columns: 1fr !important; }
-        .detail-table th { width: 120px; }
-    }
+    @media (max-width: 992px) { main > div:nth-child(2) { grid-template-columns: 1fr !important; } .detail-table th { width: 120px; } }
 </style>
 
 <?= view('includes/footer') ?>

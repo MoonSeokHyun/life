@@ -32,7 +32,7 @@ class LifeService extends BaseController
         'comprehensive_travel_agencies' => '종합 여행사',
     ];
 
-    // 컬럼명 한글 매핑 테이블
+    // 사용자에게 보여줄 가치가 있는 컬럼들만 정의 (화이트리스트)
     protected $columnLabels = [
         'business_name' => '사업장명',
         'road_address' => '도로명 주소',
@@ -40,30 +40,28 @@ class LifeService extends BaseController
         'phone_number' => '전화번호',
         'permit_date' => '인허가 일자',
         'business_status_name' => '영업 상태',
-        'detail_status_name' => '상세 영업 상태',
+        'detail_status_name' => '상세 상태',
         'closure_date' => '폐업 일자',
         'business_category' => '업태 구분',
         'site_area' => '소재지 면적',
-        'zip_code' => '우편번호',
-        'male_employees' => '남성 종사자 수',
-        'female_employees' => '여성 종사자 수',
-        'total_employees' => '총 종사자 수',
-        'coordinate_x' => '좌표(X)',
-        'coordinate_y' => '좌표(Y)',
-        'hygiene_business_type' => '위생업태명',
-        'is_multi_use_facility' => '다중이용업소 여부',
+        'male_employees' => '남성 종사자',
+        'female_employees' => '여성 종사자',
+        'total_employees' => '총 종사자',
+        'is_multi_use_facility' => '다중이용시설 여부',
         'total_facility_scale' => '시설 총 규모',
         'building_ownership' => '건물 소유 구분',
-        'deposit' => '보증금',
-        'monthly_rent' => '월세',
-        'homepage' => '홈페이지',
-        'last_modified_at' => '최종 수정 시점',
-        'permit_number' => '인허가 번호',
         'room_count' => '객실 수',
         'floor_count' => '층수',
-        'water_supply_type' => '급수시설 구분',
+        'homepage' => '홈페이지',
+        'building_usage' => '건물 용도',
+        'floors_below' => '지하 층수',
+        'total_floors' => '지상 층수',
         'surrounding_environment' => '주변 환경',
         'grade_name' => '등급',
+        // 문화/영화 특화 필드
+        '공연장형태구분명' => '공연장 형태',
+        'culture_business_type' => '문화사업 종류',
+        'culture_sports_type' => '문화체육 종류',
     ];
 
     public function index($type)
